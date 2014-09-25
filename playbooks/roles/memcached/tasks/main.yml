@@ -1,0 +1,12 @@
+---
+- name: install packages needed for memcached
+  apt: pkg={{','.join(memcached_debian_pkgs)}} install_recommends=yes state=present
+
+- name: copy the memcached.conf file
+  template: src=memcached.conf.j2 dest=/etc/memcached.conf backup=yes
+  notify:
+   - restart memcached
+
+- name: retart the memcached services
+  service: name=memcached state=restarted enabled=yes
+

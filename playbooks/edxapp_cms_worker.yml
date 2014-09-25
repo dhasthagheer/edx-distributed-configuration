@@ -1,0 +1,11 @@
+- name: Deploy edxapp
+  hosts: all
+  sudo: True
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+    EDXAPP_WORKERS:
+      cms: 4
+  roles:
+    - { role: 'edxapp', celery_worker: True , celery_cms_worker: True}

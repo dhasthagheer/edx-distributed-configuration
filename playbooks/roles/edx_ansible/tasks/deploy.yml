@@ -1,0 +1,50 @@
+---
+- name: git checkout edx_ansible repo into edx_ansible_code_dir
+  git: >
+    dest={{ edx_ansible_code_dir }} repo={{ edx_ansible_source_repo }} version={{ configuration_version }}
+    accept_hostkey=yes
+  sudo_user: "{{ edx_ansible_user }}"
+
+- name : install edx_ansible venv requirements
+  pip: >
+    requirements="{{ edx_ansible_requirements_file }}" virtualenv="{{ edx_ansible_venv_dir }}" state=present
+    extra_args="-i {{ COMMON_PYPI_MIRROR_URL }}"
+  sudo_user: "{{ edx_ansible_user }}"
+
+- name: create update script
+  template: >
+    dest={{ edx_ansible_app_dir}}/update
+    src=update.j2 owner={{ edx_ansible_user }} group={{ edx_ansible_user }} mode=755
+
+- name: create a symlink for update.sh
+  file: >
+    src={{ edx_ansible_app_dir }}/update
+    dest={{ COMMON_BIN_DIR }}/update
+    state=link
+
+- name: create a symlink for ansible-playbook
+  file: >
+    src={{ edx_ansible_venv_bin }}/ansible-playbook
+    dest={{ COMMON_BIN_DIR }}/ansible-playbook
+    state=link
+
+- name: create a symlink for the playbooks dir
+  file: >
+    src={{ edx_ansible_code_dir }}/playbooks
+    dest={{ COMMON_CFG_DIR }}/playbooks
+    state=link
+    
+- name: dump all vars to yaml
+  template: src=dumpall.yml.j2 dest={{ edx_ansible_var_file }} mode=0600
+  when: EDX_ANSIBLE_DUMP_VARS
+
+- name: create symlink for config file
+  file: >
+    src={{ edx_ansible_var_file }}
+    dest={{ COMMON_CFG_DIR }}/{{ edx_ansible_var_file|basename }}
+    state=link
+  when: EDX_ANSIBLE_DUMP_VARS
+
+- name: clean up var file, removing all version vars and internal ansible vars (anything not caps)
+  shell: python -c "import yaml; y=yaml.load(open('{{ edx_ansible_var_file }}')); f=open('{{ edx_ansible_var_file }}', 'wb'); f.write(yaml.safe_dump({key:value for key,value in y.iteritems() if key.isupper()}, default_flow_style=False)); f.close();"
+  when: EDX_ANSIBLE_DUMP_VARS

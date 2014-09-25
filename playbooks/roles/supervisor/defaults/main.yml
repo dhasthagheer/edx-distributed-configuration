@@ -1,0 +1,46 @@
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Defaults for role supervisor
+#
+---
+SUPERVISOR_HTTP_BIND_IP: '127.0.0.1'
+
+# Used by the pre-supervisor script if you want to
+# notify a hipchat room with the output.
+SUPERVISOR_HIPCHAT_API_KEY: !!null
+SUPERVISOR_HIPCHAT_ROOM: default
+
+# do not override the bind_port since
+# all supervisors will then try to listen
+# on the same one
+supervisor_http_bind_port: '9001'
+supervisor_app_dir: "{{ COMMON_APP_DIR }}/supervisor"
+supervisor_cfg_dir: "{{ supervisor_app_dir }}/conf.d"
+supervisor_available_dir: "{{ supervisor_app_dir }}/conf.available.d"
+supervisor_data_dir: "{{ COMMON_DATA_DIR }}/supervisor"
+supervisor_venvs_dir: "{{ supervisor_app_dir }}/venvs"
+supervisor_venv_dir: "{{ supervisor_venvs_dir }}/supervisor"
+supervisor_venv_bin: "{{ supervisor_venv_dir }}/bin"
+supervisor_ctl: "{{ supervisor_venv_bin }}/supervisorctl"
+
+# by default supervisor runs as the web user
+# which by default is set to www-data in
+# the common role
+supervisor_user: supervisor
+supervisor_log_dir: "{{ COMMON_LOG_DIR }}/supervisor"
+supervisor_cfg: "{{ supervisor_app_dir }}/supervisord.conf"
+# upstart service name and user
+supervisor_service: supervisor
+supervisor_service_user: "{{ common_web_user }}"
+
+supervisor_pip_pkgs:
+  - boto
+  - python-simple-hipchat

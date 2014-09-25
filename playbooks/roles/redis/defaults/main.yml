@@ -1,0 +1,34 @@
+---
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+##
+# Defaults for role redis
+# 
+REDIS_PASSWORD: !!null
+REDIS_BIND_IP: 127.0.0.1
+REDIS_PERSISTENCE_DIR: "/var/lib/redis"
+REDIS_MEMORY_LIMIT: "512mb"
+REDIS_MAX_MEMORY_POLICY: "noeviction"
+#
+# vars are namespace with the module name.
+#
+redis_role_name: redis
+redis_ppa: "ppa:chris-lea/redis-server"
+
+redis_user: redis
+redis_group: redis
+
+#
+# OS packages
+#
+
+redis_debian_pkgs:
+  - "redis-server=2:2.8.11-1chl1~precise1"
+
+redis_redhat_pkgs: []

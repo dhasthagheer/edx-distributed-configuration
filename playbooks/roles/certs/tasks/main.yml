@@ -1,0 +1,102 @@
+---
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Tasks for role certs
+#
+# Overview:
+#
+# Installs the edX certificate server.
+#
+# The certificates repo is currently *not* public
+# due to sensitive information in it, it may be made
+# public in the future.
+#
+# Dependencies:
+#   - common
+#   - supervisor
+#
+#
+# Example play:
+#
+#   - roles:
+#     - common
+#     - supervisor
+#     - certs
+#
+- name: create application user
+  user: >
+    name="{{ certs_user }}"
+    home="{{ certs_app_dir }}"
+    createhome=no
+    shell=/bin/false
+  notify: restart certs
+
+- name: create certs app dirs
+  file: >
+    path="{{ item }}"
+    state=directory
+    owner="{{ certs_user }}"
+    group="{{ common_web_group }}"
+  notify: restart certs
+  with_items:
+    - "{{ certs_app_dir }}"
+    # needed for the ansible 1.5 git module
+    - "{{ certs_app_dir }}/.ssh"
+    - "{{ certs_venvs_dir }}"
+    - "{{ certs_data_dir }}"
+
+# The certs web root must be owned
+# by the web user so the certs service
+# can write files there.
+- name: create certs web root
+  file: >
+    path="{{ CERTS_WEB_ROOT }}"
+    state=directory
+    owner="{{ common_web_group }}"
+    group="{{ certs_user }}"
+
+- name: create certs gpg dir
+  file: >
+    path="{{ certs_gpg_dir }}" state=directory
+    owner="{{ common_web_user }}"
+    mode=0700
+  notify: restart certs
+
+- name: copy the private gpg signing key
+  copy: >
+    src={{ CERTS_LOCAL_PRIVATE_KEY }}
+    dest={{ certs_app_dir }}/{{ CERTS_LOCAL_PRIVATE_KEY|basename }}
+    owner={{ common_web_user }} mode=0600
+  notify: restart certs
+  register: certs_gpg_key
+
+- name: copy the pgp trust export
+  copy: >
+    content="{{ CERTS_OWNER_TRUST }}"
+    dest={{ certs_app_dir }}/trust.export
+    owner={{ common_web_user }} mode=0600
+  notify: restart certs
+
+- name: load the gpg key
+  shell: >
+    /usr/bin/gpg --homedir {{ certs_gpg_dir }} --import {{ certs_app_dir }}/{{ CERTS_LOCAL_PRIVATE_KEY|basename }}
+  sudo_user: "{{ common_web_user }}"
+  when: certs_gpg_key.changed
+  notify: restart certs
+
+- name: import the trust export
+  shell: >
+    /usr/bin/gpg --homedir {{ certs_gpg_dir }} --import-ownertrust {{ certs_app_dir }}/trust.export
+  sudo_user: "{{ common_web_user }}"
+  when: certs_gpg_key.changed
+  notify: restart certs
+
+- include: deploy.yml tags=deploy

@@ -1,0 +1,6 @@
+- name: Deploy devpi
+  hosts: all
+  sudo: True
+  gather_facts: True
+  roles:
+    - devpi

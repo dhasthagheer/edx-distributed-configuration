@@ -1,0 +1,157 @@
+---
+
+#Please change ip address of the servers 
+lms_hosts: ${groups.lms[0]}
+lms_nginx_port: '80'
+cms_hosts: ${groups.cms[0]}
+cms_nginx_port: '80'
+worker_host: ${groups.workers[0]}
+mysql_host: ${groups.mysql[0]}
+mongo_hosts: ${groups.mongo[0]}
+#mongo_hosts: ${groups.mongo}
+forum_host: ${groups.forum[0]}
+ora_host: ${groups.ora[0]}
+certs_host: ${groups.certs[0]}
+rabbit_master: ${groups.rabbit_master[0]}
+#rabbit_master_hostname: 'Rabbit1'
+#rabbit_slave1: ${groups.rabbit_slave1[0]}
+#rabbit_slave1_hostname: 'Rabbit2'
+#rabbit_slave2: ${groups.rabbit_slave2[0]}
+#rabbit_slave2_hostname: 'Rabbit3'
+xqueue_host: ${groups.xqueue[0]}
+elasticsearch_host: ${groups.elasticsearch[0]}
+memcached_host: ${groups.memcached[0]}
+
+#common variables
+migrate_db: "yes"
+COMMON_BASE_DIR: /edx
+
+#Mysql installation Variables
+COMMON_MYSQL_ADMIN_USER: "admin"
+COMMON_MYSQL_ADMIN_PASS: "password"
+COMMON_MYSQL_READ_ONLY_USER: "readonly"
+COMMON_MYSQL_READ_ONLY_PASS: "password"
+COMMON_MYSQL_MIGRATE_USER: "migrate"
+COMMON_MYSQL_MIGRATE_PASS: "password"
+EDXAPP_MYSQL_USER: "edxapp"
+EDXAPP_MYSQL_PASSWORD: "password"
+ORA_MYSQL_USER: "ora"
+ORA_MYSQL_PASSWORD: "password"
+XQUEUE_MYSQL_USER: "xqueue"
+XQUEUE_MYSQL_PASSWORD: "password"
+EDXAPP_MYSQL_DB_NAME: "edxapp"
+XQUEUE_MYSQL_DB_NAME: "xqueue"
+ORA_MYSQL_DB_NAME: "ora"
+
+#MongoDB installation variables
+mongo_create_users: true
+MONGO_USERS:
+  - user: cs_comments_service
+    password: password
+    database: cs_comments_service
+  - user: edxapp
+    password: password
+    database: edxapp
+
+#MONGO_CLUSTERED: true
+MONGO_BIND_IP: 0.0.0.0
+#mongo_cluster_members: $mongo_hosts
+
+#rabbitmq varibales
+RABBIT_USERS:
+  - name: 'admin'
+    password: 'admin'
+  - name: 'edx'
+    password: 'edx'
+  - name: 'celery'
+    password: 'celery'
+#RABBITMQ_CLUSTERED: true
+#rabbitmq_clustered_hosts:
+#  - $rabbit_master
+#  - $rabbit_slave1
+#  - $rabbit_slave2
+
+#Elasticserach installation variables
+#ELASTICSEARCH_CLUSTERED: true
+#ELASTICSEARCH_CLUSTER_NAME: 'indiax'
+
+#xqueue variables
+XQUEUE_NGINX_PORT: 18040
+XQUEUE_QUEUES:
+  'certificates': !!null
+  'open-ended': !!null
+XQUEUE_LOGGING_ENV: production
+XQUEUE_SYSLOG_SERVER: ''
+XQUEUE_DJANGO_USERS:
+  lms: 'password'
+XQUEUE_RABBITMQ_USER: 'edx'
+XQUEUE_RABBITMQ_PASS: 'edx'
+XQUEUE_RABBITMQ_HOSTNAME: $rabbit_master
+XQUEUE_MYSQL_HOST: $mysql_host
+
+#ORA variables
+ORA_XQUEUE_URL: "http://{{xqueue_host}}:18040"
+ORA_XQUEUE_DJANGO_USER: "lms"
+ORA_XQUEUE_DJANGO_PASSWORD: "password"
+ORA_XQUEUE_BASIC_AUTH_USER: "edx"
+ORA_XQUEUE_BASIC_AUTH_PASSWORD: "edx"
+ORA_DJANGO_USER: "lms"
+ORA_DJANGO_PASSWORD: "password"
+ORA_URL: "http://{{ora_host}}:18060"
+ORA_MYSQL_HOST: $mysql_host
+
+
+#Certs variables
+CERTS_QUEUE_URL: "http://{{xqueue_host}}:18040"
+CERTS_XQUEUE_AUTH_USER: "edx"
+CERTS_XQUEUE_AUTH_PASS: "edx"
+CERTS_QUEUE_USER: "lms"
+CERTS_QUEUE_PASS: "password"
+CERTS_URL: "http://{{certs_host}}:18090"
+CERTS_DOWNLOAD_URL: "http://{{certs_host}}:18090"
+CERTS_VERIFY_URL: "http://{{certs_host}}:18090"
+
+
+#forum variables
+FORUM_MONGO_USER: "cs_comments_service"
+FORUM_MONGO_PASSWORD: "password"
+FORUM_MONGO_HOSTS: $mongo_hosts
+FORUM_MONGO_DATABASE: "cs_comments_service"
+FORUM_SINATRA_ENV: "production"
+FORUM_RACK_ENV: "production"
+FORUM_API_KEY: "password"
+FORUM_ELASTICSEARCH_HOST: $elasticsearch_host
+FORUM_ELASTICSEARCH_PORT: "9200"
+
+
+
+#edxapp variables
+#NGINX_ENABLE_SSL: true
+#NGINX_SSL_CERTIFICATE: /path/to/ssl/certificate.crt
+#NGINX_SSL_KEY: /path/to/ssl/certificate.key
+EDXAPP_MYSQL_HOST: $mysql_host
+EDXAPP_MONGO_HOSTS: $mongo_hosts
+EDXAPP_MONGO_DB_NAME: 'edxapp'
+EDXAPP_MONGO_USER: 'edxapp'
+EDXAPP_MONGO_PASS: 'password'
+openid_workaround: True
+edx_platform_version: 'release'
+EDXAPP_PYTHON_SANDBOX: False
+EDXAPP_SESSION_COOKIE_DOMAIN: ""
+EDXAPP_SITE_NAME: $lms_hosts
+EDXAPP_CMS_SITE_NAME: $cms_hosts
+EDXAPP_CMS_BASE: $cms_hosts
+EDXAPP_CMS_NGINX_PORT: $cms_nginx_port
+#EDXAPP_CMS_SSL_NGINX_PORT: 443
+EDXAPP_LMS_BASE: $lms_hosts
+EDXAPP_LMS_NGINX_PORT: $lms_nginx_port
+EDXAPP_PREVIEW_LMS_BASE: $lms_hosts
+EDXAPP_TIME_ZONE: 'Asia/Kolkata'
+EDXAPP_COMMENTS_SERVICE_URL:  "http://{{forum_host}}:18080"
+EDXAPP_PLATFORM_NAME: 'BharatMOOC'
+EDXAPP_RABBIT_HOSTNAME: $rabbit_master
+EDXAPP_XQUEUE_URL: "http://{{xqueue_host}}:18040"
+EDXAPP_OEE_URL: 'http://{{ora_host}}:18040/'
+EDXAPP_MEMCACHE: [ "{{memcached_host}}:11211" ]
+
+

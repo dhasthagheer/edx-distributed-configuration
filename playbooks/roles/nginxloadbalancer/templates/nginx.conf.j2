@@ -1,0 +1,82 @@
+user www-data;
+worker_processes 4;
+pid /var/run/nginx.pid;
+
+events {
+        worker_connections 768;
+        # multi_accept on;
+}
+
+http {
+
+     upstream {{appname}} {
+     {% if  appname  == 'lms' %}
+     server {{lms1_host}}:80;
+     server {{lms2_host}}:80;
+     {% endif %}
+
+     {% if  appname == 'cms' %}
+     server {{cms1_host}}:80;
+     server {{cms2_host}}:80;
+     {% endif %}
+    }
+
+    server {
+        listen 80;
+        server_name www.example.com;
+        location / {
+            proxy_pass http://{{appname}};
+        }
+     }
+    
+
+        ##
+        # Basic Settings
+        ##
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        # increase header buffer for for https://edx-wiki.atlassian.net/browse/LMS-467&gt
+        # see http://orensol.com/2009/01/18/nginx-and-weird-400-bad-request-responses/
+        large_client_header_buffers 4 16k;
+        # server_tokens off;
+
+        # server_names_hash_bucket_size 64;
+        # server_name_in_redirect off;
+
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        ##
+        # Logging Settings
+        ##
+
+        access_log /var/log/nginx/access.log;
+        error_log /var/log/nginx/error.log;
+
+        ##
+        # Gzip Settings
+        ##
+
+        gzip on;
+        gzip_disable "msie6";
+
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_buffers 16 8k;
+        gzip_http_version 1.1;
+        gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+        ##
+        # Virtual Host Configs
+        ##
+        include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/sites-enabled/*;
+
+
+}
+

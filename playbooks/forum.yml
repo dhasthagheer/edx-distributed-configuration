@@ -1,0 +1,11 @@
+- name: Deploy forum
+  hosts: all
+  sudo: True
+  gather_facts: True
+  roles:
+    - role: nginx
+      nginx_sites:
+      - forum
+#    - oraclejdk
+#    - elasticsearch
+    - forum

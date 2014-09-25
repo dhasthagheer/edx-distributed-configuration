@@ -1,0 +1,12 @@
+---
+
+# Example sandbox configuration
+# for single server community
+# installs
+
+- name: Configure instance(s)
+  hosts: all
+  sudo: True
+  gather_facts: True
+  roles:
+    - mongo

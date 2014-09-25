@@ -1,0 +1,151 @@
+---
+- name: install packages needed for single server
+  apt: pkg={{','.join(edxlocal_debian_pkgs)}} install_recommends=yes state=present
+
+- name: copy the my.cnf file
+  template: src=my.cnf.j2 dest=/etc/mysql/my.cnf backup=yes
+  notify:
+   - restart mysql
+
+- name: retart the mysql services
+  service: name=mysql state=restarted enabled=yes
+
+- name: setup the edxapp db user lms hosts
+  mysql_user: >
+    name={{ EDXAPP_MYSQL_USER }}
+    password={{ EDXAPP_MYSQL_PASSWORD }}
+    priv='{{EDXAPP_MYSQL_DB_NAME}}.*:ALL'
+    host={{ item }}
+  when: EDXAPP_MYSQL_USER is defined
+  with_items: 
+    - ${groups.lms}
+
+- name: setup the migration db user for edxapp lms hosts
+  mysql_user: >
+    name={{ COMMON_MYSQL_MIGRATE_USER }}
+    password={{ COMMON_MYSQL_MIGRATE_PASS }}
+    priv='{{ EDXAPP_MYSQL_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items: 
+    - ${groups.lms}
+
+- name: setup the edxapp db user cms hosts
+  mysql_user: >
+    name={{ EDXAPP_MYSQL_USER }}
+    password={{ EDXAPP_MYSQL_PASSWORD }}
+    priv='{{EDXAPP_MYSQL_DB_NAME}}.*:ALL'
+    host={{ item }}
+  when: EDXAPP_MYSQL_USER is defined
+  with_items:
+    - ${groups.cms}
+
+- name: setup the migration db user for edxapp cms hosts
+  mysql_user: >
+    name={{ COMMON_MYSQL_MIGRATE_USER }}
+    password={{ COMMON_MYSQL_MIGRATE_PASS }}
+    priv='{{ EDXAPP_MYSQL_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - ${groups.cms}
+
+- name: setup the edxapp db user worker hosts
+  mysql_user: >
+    name={{ EDXAPP_MYSQL_USER }}
+    password={{ EDXAPP_MYSQL_PASSWORD }}
+    priv='{{EDXAPP_MYSQL_DB_NAME}}.*:ALL'
+    host={{ item }}
+  when: EDXAPP_MYSQL_USER is defined
+  with_items:
+    - ${groups.workers}
+
+- name: setup the migration db user for edxapp worker hosts
+  mysql_user: >
+    name={{ COMMON_MYSQL_MIGRATE_USER }}
+    password={{ COMMON_MYSQL_MIGRATE_PASS }}
+    priv='{{ EDXAPP_MYSQL_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - ${groups.workers}
+
+- name: create a database for edxapp
+  mysql_db: >
+    db=edxapp
+    state=present
+    encoding=utf8
+  when: EDXAPP_MYSQL_USER is defined
+
+- name: setup the xqueue db user
+  mysql_user: >
+    name={{ XQUEUE_MYSQL_USER }}
+    password={{ XQUEUE_MYSQL_PASSWORD }}
+    priv='{{XQUEUE_MYSQL_DB_NAME}}.*:ALL'
+    host={{ item }}
+  when: XQUEUE_MYSQL_USER is defined
+  with_items:
+    - ${groups.xqueue}
+
+- name: setup the migration db user for xqueue
+  mysql_user: >
+    name={{ COMMON_MYSQL_MIGRATE_USER }}
+    password={{ COMMON_MYSQL_MIGRATE_PASS }}
+    priv='{{ XQUEUE_MYSQL_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - ${groups.xqueue}
+
+
+- name: create a database for xqueue
+  mysql_db: >
+    db=xqueue
+    state=present
+    encoding=utf8
+  when: XQUEUE_MYSQL_USER is defined
+
+- name: setup the ora db user
+  mysql_user: >
+    name={{ ORA_MYSQL_USER }}
+    password={{ ORA_MYSQL_PASSWORD }}
+    priv='{{ORA_MYSQL_DB_NAME}}.*:ALL'
+    host={{ item }}
+  when: ORA_MYSQL_USER is defined
+  with_items: 
+    - ${groups.ora}
+
+- name: setup the migration db user for ora
+  mysql_user: >
+    name={{ COMMON_MYSQL_MIGRATE_USER }}
+    password={{ COMMON_MYSQL_MIGRATE_PASS }}
+    priv='{{ ORA_MYSQL_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item}}
+  with_items: 
+    - ${groups.ora}
+
+- name: create a database for ora
+  mysql_db: >
+    db=ora
+    state=present
+    encoding=utf8
+  when: ORA_MYSQL_USER is defined
+
+- name: setup the read-only db user
+  mysql_user: >
+    name={{ COMMON_MYSQL_READ_ONLY_USER }}
+    password={{ COMMON_MYSQL_READ_ONLY_PASS }}
+    priv='*.*:ALL'
+
+- name: setup the admin db user
+  mysql_user: >
+    name={{ COMMON_MYSQL_ADMIN_USER }}
+    password={{ COMMON_MYSQL_ADMIN_PASS }}
+    priv='*.*:CREATE USER'
+
+- name: copy the .my.cnf file
+  template: src=.my.cnf.j2 dest=~/my.cnf
+  notify:
+   - restart mysql
+

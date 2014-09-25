@@ -1,0 +1,9 @@
+- name: Deploy ora
+  hosts: all
+  sudo: True
+  gather_facts: True
+  roles:
+    - role: nginx
+      nginx_sites:
+      - ora
+    - ora

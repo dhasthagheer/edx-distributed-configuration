@@ -1,0 +1,6 @@
+# Variables for nginxloadbalancer role
+---
+nginx_debian_pkgs:
+  - nginx
+  - python-passlib
+

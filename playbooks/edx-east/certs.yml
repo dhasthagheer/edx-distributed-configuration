@@ -1,0 +1,13 @@
+- name: Deploy certs
+  hosts: all
+  sudo: True
+  gather_facts: True
+  roles:
+    - aws
+    - certs
+    - role: datadog
+      when: COMMON_ENABLE_DATADOG
+    - role: splunkforwarder
+      when: COMMON_ENABLE_SPLUNKFORWARDER
+    - role: newrelic
+      when: COMMON_ENABLE_NEWRELIC

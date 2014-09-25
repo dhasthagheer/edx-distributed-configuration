@@ -1,0 +1,12 @@
+*.swp
+*.pyc
+.idea/
+.vagrant
+\#*\#
+*~
+.#*
+
+vagrant/*/devstack/edx-platform
+vagrant/*/devstack/cs_comments_service
+vagrant/*/devstack/ora
+vagrant_ansible_inventory_default

@@ -1,0 +1,169 @@
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Tasks for role supervisor
+#
+# Overview:
+#   Role for supervisord, a parameterized role for installing supervisord
+#
+#   By default supervisor will be installed into {{ COMMON_APP_DIR }}/supervisor
+#   and log to {{ COMMON_LOG_DIR }}/supervisor and run as the
+#   {{ common_web_user }}
+#
+#   The including supervisor with the following parameters
+#   will install it into a different location:
+#
+#    - supervisor_app_dir
+#    - supervisor_data_dir
+#    - supervisor_log_dir
+#    - supervisor_venv_dir
+#    - supervisor_service_user
+#    - supervisor_service
+#
+# Dependencies:
+#   - common
+#
+# Example play:
+#
+#   # Install in the default location,
+#   # run as the default user
+#
+#   roles:
+#     - common
+#     - role: supervisor
+#
+#   # Install in an alternate directory
+#   # and run as user "foo"
+#  - role: supervisor
+#    supervisor_app_dir: /path/to/supervisor/dir/for/configs
+#    supervisor_data_dir: /path/to/supervisor/data/dir (for pid and sock files)
+#    supervisor_log_dir: /path/to/supervisor/log/dir
+#    supervisor_venv_dir: /path/to/supervisor/venv/dir
+#    supervisor_service_user: user to run supervisor as
+#    supervisor_service: upstart-service-name
+#
+---
+- name: create application user
+  user: >
+    name="{{ supervisor_user }}"
+    createhome=no
+    shell=/bin/false
+
+- name: create supervisor service user
+  user: >
+    name="{{ supervisor_service_user }}"
+    createhome=no
+    shell=/bin/false
+
+- name: create supervisor directories
+  file: >
+    name={{ item }}
+    state=directory
+    owner={{ supervisor_user }}
+    group={{ supervisor_service_user }}
+    mode="755"
+  with_items:
+    - "{{ supervisor_app_dir }}"
+    - "{{ supervisor_venv_dir }}"
+    - "{{ supervisor_cfg_dir }}"
+    - "{{ supervisor_available_dir }}"
+
+- name: create supervisor directories
+  file: >
+    name={{ item }}
+    state=directory
+    owner={{ supervisor_service_user }}
+    group={{ supervisor_user }}
+  with_items:
+    - "{{ supervisor_data_dir }}"
+    - "{{ supervisor_log_dir }}"
+
+
+- name: install supervisor in its venv
+  pip: >
+    name=supervisor virtualenv="{{supervisor_venv_dir}}" state=present
+    extra_args="-i {{ COMMON_PYPI_MIRROR_URL }}"
+  sudo_user: "{{ supervisor_user }}"
+
+- name: install supervisor in its venv
+  pip: >
+    name={{ item }} virtualenv="{{supervisor_venv_dir}}" state=present
+    extra_args="-i {{ COMMON_PYPI_MIRROR_URL }}"
+  sudo_user: "{{ supervisor_user }}"
+  with_items: supervisor_pip_pkgs
+
+- name: create supervisor upstart job
+  template: >
+    src=etc/init/supervisor-upstart.conf.j2 dest=/etc/init/{{ supervisor_service }}.conf
+    owner=root group=root
+
+# This script is aws specific and looks up instances
+# tags and enables services based on the 'services' tag
+# on instance startup.
+- name: create pre_supervisor upstart job
+  template: >
+    src=etc/init/pre_supervisor.conf.j2 dest=/etc/init/pre_supervisor.conf
+    owner=root group=root
+  when: supervisor_service == "supervisor" and disable_edx_services and not devstack
+
+- name: write the pre_suprevisor python script
+  copy: >
+    src=pre_supervisor_checks.py
+    dest={{ supervisor_app_dir }}/pre_supervisor_checks.py
+    mode=0750
+    owner={{ supervisor_user }}
+    group={{ supervisor_service_user }}
+  when: disable_edx_services
+
+- name: create supervisor master config
+  template: >
+    src=edx/app/supervisor/supervisord.conf.j2 dest={{ supervisor_cfg }}
+    owner={{ supervisor_user }} group={{ supervisor_service_user }}
+    mode=0644
+
+- name: create a symlink for supervisortctl
+  file: >
+    src={{ supervisor_ctl }}
+    dest={{ COMMON_BIN_DIR }}/{{ supervisor_ctl|basename }}
+    state=link
+  when: supervisor_service == "supervisor"
+
+- name: create a symlink for supervisor cfg
+  file: >
+    src={{ item }}
+    dest={{ COMMON_CFG_DIR }}/{{ item|basename }}
+    state=link
+  when: supervisor_service == "supervisor"
+  with_items:
+  - "{{ supervisor_cfg }}"
+  - "{{ supervisor_cfg_dir }}"
+
+- name: start supervisor
+  service: >
+    name={{supervisor_service}}
+    state=started
+  register: start_supervisor
+
+  # calling update on supervisor too soon after it
+  # starts will result in an errror.
+- name: wait for web port to be available
+  wait_for: port={{ supervisor_http_bind_port }} timeout=5
+  when: start_supervisor.changed
+
+  # call supervisorctl update every time, this reloads
+  # the supervisorctl config
+  #
+  # we don't use notifications for supervisor because
+  # they don't work well with parameterized roles.
+  # See https://github.com/ansible/ansible/issues/4853
+- name: update supervisor configuration
+  shell:  "{{ supervisor_ctl }} -c {{ supervisor_cfg }} update"
+  register: supervisor_update
+  changed_when: supervisor_update.stdout is defined and supervisor_update.stdout != ""

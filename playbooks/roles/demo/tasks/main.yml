@@ -1,0 +1,38 @@
+---
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Tasks for role demo
+#
+# Overview:
+#
+#   Imports the demo course into studio
+#   http://gitlab.cse.iitb.ac.in/indiax/edx-demo-course
+#
+#   Once imported this role will only re-import the course
+#   if the edx-demo-course repo has been updated
+#
+# Dependencies:
+#   - common
+#   - edxapp
+#
+# Example play:
+#
+#   roles:
+#     - common
+#     - edxapp
+#     - demo
+
+- name: create demo app and data dirs
+  file: >
+    path="{{ demo_app_dir }}" state=directory
+    owner="{{ demo_edxapp_user }}" group="{{ common_web_group }}"
+
+- include: deploy.yml tags=deploy

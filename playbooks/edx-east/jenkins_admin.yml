@@ -1,0 +1,7 @@
+# Configure an instance with the admin jenkins.
+- name: Configure instance(s)
+  hosts: all
+  sudo: True
+  gather_facts: True
+  roles:
+    - jenkins_admin

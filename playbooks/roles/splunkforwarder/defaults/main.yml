@@ -1,0 +1,55 @@
+---
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+##
+# Vars for role splunk
+#
+
+#
+# vars are namespace with the module name.
+#
+splunk_role_name: 'splunk'
+
+SPLUNKFORWARDER_SERVER: 'localhost:9997'
+
+SPLUNKFORWARDER_PACKAGE_URL: !!null
+SPLUNKFORWARDER_DEB: !!null
+SPLUNKFORWARDER_PASSWORD: !!null
+
+SPLUNKFORWARDER_LOG_ITEMS:
+  - source: '{{ COMMON_LOG_DIR }}/lms'
+    recursive: true
+    index: '{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}'
+    sourcetype: 'edx'
+  - source: '{{ COMMON_LOG_DIR }}/cms'
+    recursive: true
+    index: '{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}'
+    sourcetype: 'edx'
+  - source: '{{ COMMON_LOG_DIR }}'
+    recursive: true
+    index: '{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}'
+    sourcetype: 'syslog'
+  - source: '/var/log'
+    recursive: true
+    index: '{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}'
+    sourcetype: 'syslog'
+  - source: '{{ COMMON_LOG_DIR }}/nginx'
+    recursive: true
+    index: '{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}'
+    sourcetype: 'nginx'
+
+#
+# OS packages
+#
+splunk_debian_pkgs:
+  - gdebi
+
+splunk_redhat_pkgs: []
+
+splunkforwarder_output_dir: '/opt/splunkforwarder/'

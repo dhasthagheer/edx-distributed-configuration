@@ -1,0 +1,20 @@
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Defaults for role devpi
+#
+---
+- name: restart devpi
+  supervisorctl_local: >
+    state=restarted
+    supervisorctl_path={{ devpi_supervisor_ctl }}
+    config={{ devpi_supervisor_cfg }}
+    name=devpi-server
+  sudo_user: "{{ devpi_supervisor_user }}"

@@ -1,0 +1,22 @@
+---
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Handlers for role analytics-server
+#
+# Overview:
+#
+#
+
+- name: stop the analytics service
+  service: name=analytics state=stopped
+
+- name: start the analytics service
+  service: name=analytics state=started

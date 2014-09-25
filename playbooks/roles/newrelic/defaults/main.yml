@@ -1,0 +1,31 @@
+---
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+##
+# Defaults for role newrelic
+#
+
+#
+# vars are namespace with the module name.
+#
+newrelic_role_name: newrelic
+
+NEWRELIC_REPO: 'deb http://apt.newrelic.com/debian/ newrelic non-free'
+NEWRELIC_KEY_ID: '548C16BF'
+NEWRELIC_KEY_URL: 'https://download.newrelic.com/{{ NEWRELIC_KEY_ID }}.gpg'
+NEWRELIC_LICENSE_KEY: "SPECIFY_KEY_HERE"
+
+#
+# OS packages
+#
+
+newrelic_debian_pkgs:
+  - newrelic-sysmond
+
+newrelic_redhat_pkgs: []

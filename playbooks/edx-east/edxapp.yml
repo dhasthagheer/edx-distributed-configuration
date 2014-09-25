@@ -1,0 +1,19 @@
+- name: Deploy edxapp
+  hosts: all
+  sudo: True
+  gather_facts: True
+  roles:
+    - aws
+    - role: nginx
+      nginx_sites:
+      - lms
+      - cms
+      nginx_default_sites:
+      - lms
+    - edxapp
+    - role: datadog
+      when: COMMON_ENABLE_DATADOG
+    - role: splunkforwarder
+      when: COMMON_ENABLE_SPLUNKFORWARDER
+    - role: newrelic
+      when: COMMON_ENABLE_NEWRELIC

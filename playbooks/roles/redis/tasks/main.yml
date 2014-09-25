@@ -1,0 +1,40 @@
+---
+#
+# edX Configuration
+#
+# github:     http://gitlab.cse.iitb.ac.in/indiax/configuration
+# wiki:       http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki
+# code style: http://gitlab.cse.iitb.ac.in/indiax/configuration/wiki/Ansible-Coding-Conventions
+# license:    http://gitlab.cse.iitb.ac.in/indiax/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Tasks for role redis
+# 
+# Overview:
+# 
+#
+# Dependencies:
+#
+# 
+# Example play:
+#
+#
+
+- name: add the redis ppa
+  apt_repository: repo="{{ redis_ppa }}"
+
+- name: install redis system packages
+  apt: pkg={{ item }} install_recommends=yes state=present
+  with_items: redis_debian_pkgs
+  notify: reload redis
+
+- name: update redis configuration
+  template: >
+    src=etc/redis/redis.conf.j2
+    dest=/etc/redis/redis.conf
+    owner=root
+    group={{ redis_group }}
+    mode=640
+  notify: reload redis
+
