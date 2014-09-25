@@ -1,9 +1,9 @@
-edx-distributed-configuration
-=============================
+###Edx-Distributed-Configuration
 
-'''Deploy edX'''
 
-sudo apt-get install -y build-essential software-properties-common python-software-properties curl git-core libxml2-dev libxslt1-dev python-pip python-apt python-dev sshpass 
+<b>Deploy edX</b>
+
+<pre>sudo apt-get install -y build-essential software-properties-common python-software-properties curl git-core libxml2-dev libxslt1-dev python-pip python-apt python-dev sshpass 
 
 sudo pip install --upgrade pip 
 
@@ -18,120 +18,121 @@ sudo pip install -r /var/tmp/configuration/requirements.txt
 cd /var/tmp/configuration/playbooks
 
 vi /var/tmp/configuration/playbooks/inventory.ini
+</pre>
 
 Edit the inventory file and give ip address of the servers in the respective groups
 
-'''Installation'''
+<b>Installation</b>
 
-'''1. Mysql'''
+######1. Mysql
 
-sudo ansible-playbook -c ssh mysql.yml -i inventory.ini --limit mysql -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh mysql.yml -i inventory.ini --limit mysql -e@server_vars.yml -u edx -k -K</pre>
 
-'''2. Memcached'''
+######2. Memcached
 
-sudo ansible-playbook -c ssh memcached.yml -i inventory.ini --limit memcached -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh memcached.yml -i inventory.ini --limit memcached -e@server_vars.yml -u edx -k -K</pre>
 
-'''3. MongoDB'''
+######3. MongoDB
 
-sudo ansible-playbook -c ssh mongo.yml -i inventory.ini --limit mongo -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh mongo.yml -i inventory.ini --limit mongo -e@server_vars.yml -u edx -k -K</pre>
 
-'''4. RabbitMQ'''
+######4. RabbitMQ
 
-sudo ansible-playbook -c ssh rabbitmq.yml -i inventory.ini --limit rabbit_master -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh rabbitmq.yml -i inventory.ini --limit rabbit_master -e@server_vars.yml -u edx -k -K</pre>
 
-'''5. Elasticsearch'''
+######5. Elasticsearch
 
-sudo ansible-playbook -c ssh elasticsearch.yml -i inventory.ini --limit elasticsearch -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh elasticsearch.yml -i inventory.ini --limit elasticsearch -e@server_vars.yml -u edx -k -K </pre>
 
-'''6. Xqueue'''
+######6. Xqueue
 
-sudo ansible-playbook -c ssh xqueue.yml -i inventory.ini --limit xqueue -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh xqueue.yml -i inventory.ini --limit xqueue -e@server_vars.yml  -u edx -k -K</pre>
 
-'''7. ORA'''
+######7. ORA
 
-sudo ansible-playbook -c ssh ora.yml -i inventory.ini --limit ora -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh ora.yml -i inventory.ini --limit ora -e@server_vars.yml  -u edx -k -K</pre>
 
-'''8. Certs'''
+######8. Certs
 
-sudo ansible-playbook -c ssh certs.yml -i inventory.ini --limit certs -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh certs.yml -i inventory.ini --limit certs -e@server_vars.yml  -u edx -k -K</pre>
 
-'''9. CS_COMMENTS_SERVICE'''
+######9. CS_COMMENTS_SERVICE
 
-sudo ansible-playbook -c ssh forum.yml -i inventory.ini --limit forum -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh forum.yml -i inventory.ini --limit forum -e@server_vars.yml -u edx -k -K</pre>
 
-'''10. LMS'''
+######10. LMS
 
-sudo ansible-playbook -c ssh edxapp_lms.yml -i inventory.ini --limit lms -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh edxapp_lms.yml -i inventory.ini --limit lms -e@server_vars.yml  -u edx -k -K</pre>
 
-'''11. CMS'''
+######11. CMS
 
-sudo ansible-playbook -c ssh edxapp_cms.yml -i inventory.ini --limit cms -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh edxapp_cms.yml -i inventory.ini --limit cms -e@server_vars.yml  -u edx -k -K</pre>
 
-'''12. Worker'''
+######12. Worker
 
-sudo ansible-playbook -c ssh edxapp_worker.yml -i inventory.ini --limit workers -e@server_vars.yml  -u edx -k -K
-
-
-'''Edx Production Installation with cluster'''
+<pre>sudo ansible-playbook -c ssh edxapp_worker.yml -i inventory.ini --limit workers -e@server_vars.yml  -u edx -k -K</pre>
 
 
-'''1. Mysql'''
+####Edx Production Installation with cluster
 
-sudo ansible-playbook -c ssh mysql.yml -i inventory.ini --limit mysql -e@server_vars.yml -u edx -k -K
 
-'''2. Memcached'''
+######1. Mysql
 
-sudo ansible-playbook -c ssh memcached.yml -i inventory.ini --limit memcached -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh mysql.yml -i inventory.ini --limit mysql -e@server_vars.yml -u edx -k -K</pre>
 
-'''3. MongoDB cluster'''
+######2. Memcached
 
-sudo ansible-playbook -c ssh mongo.yml -i inventory.ini --limit mongo -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh memcached.yml -i inventory.ini --limit memcached -e@server_vars.yml -u edx -k -K</pre>
+
+######3. MongoDB cluster
+
+<pre>sudo ansible-playbook -c ssh mongo.yml -i inventory.ini --limit mongo -e@server_vars.yml -u edx -k -K</pre>
 
 Note: At the end you will get error on two secondary machines. Dont worry about the error. pymongo.errors.AutoReconnect: not master and slaveOk=false. Never mind it
 
-'''4. Rabbit Server cluster'''
+######4. Rabbit Server cluster
 
-sudo ansible-playbook -c ssh rabbitmq.yml -i inventory.ini --limit rabbit_master,rabbit_slave1,rabbit_slave2 -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh rabbitmq.yml -i inventory.ini --limit rabbit_master,rabbit_slave1,rabbit_slave2 -e@server_vars.yml -u edx -k -K</pre>
 
-'''5. Elasticsearch cluster'''
+######5. Elasticsearch cluster
 
-sudo ansible-playbook -c ssh elasticsearch.yml -i inventory.ini --limit elasticsearch -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh elasticsearch.yml -i inventory.ini --limit elasticsearch -e@server_vars.yml -u edx -k -K</pre>
 
-'''6. Xqueue'''
+######6. Xqueue
 
-sudo ansible-playbook -c ssh xqueue.yml -i inventory.ini --limit xqueue -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh xqueue.yml -i inventory.ini --limit xqueue -e@server_vars.yml  -u edx -k -K</pre>
 
-'''7. ORA'''
+######7. ORA
 
-sudo ansible-playbook -c ssh ora.yml -i inventory.ini --limit ora -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh ora.yml -i inventory.ini --limit ora -e@server_vars.yml  -u edx -k -K</pre>
 
-'''8. Certs'''
+######8. Certs
 
-sudo ansible-playbook -c ssh certs.yml -i inventory.ini --limit certs -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh certs.yml -i inventory.ini --limit certs -e@server_vars.yml  -u edx -k -K</pre>
 
-'''9. CS_COMMENTS_SERVICE'''
+######9. CS_COMMENTS_SERVICE
 
-sudo ansible-playbook -c ssh forum.yml -i inventory.ini --limit forum -e@server_vars.yml -u edx -k -K
+<pre>sudo ansible-playbook -c ssh forum.yml -i inventory.ini --limit forum -e@server_vars.yml -u edx -k -K</pre>
 
-'''10. LMS'''
+######10. LMS
 
-sudo ansible-playbook -c ssh edxapp_lms.yml -i inventory.ini --limit lms -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh edxapp_lms.yml -i inventory.ini --limit lms -e@server_vars.yml  -u edx -k -K</pre>
 
-'''11. CMS'''
+######11. CMS
 
-sudo ansible-playbook -c ssh edxapp_cms.yml -i inventory.ini --limit cms -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh edxapp_cms.yml -i inventory.ini --limit cms -e@server_vars.yml  -u edx -k -K</pre>
 
-'''12. Worker'''
+######12. Worker
 
-sudo ansible-playbook -c ssh edxapp_worker.yml -i inventory.ini --limit workers -e@server_vars.yml  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh edxapp_worker.yml -i inventory.ini --limit workers -e@server_vars.yml  -u edx -k -K</pre>
 
-'''13. Nginx Load Balancer for LMS'''
+######13. Nginx Load Balancer for LMS
 
-sudo ansible-playbook -c ssh loadbalance.yml -i inventory.ini --limit lmsloadbalancer -e@server_vars.yml -e 'appname=lms  lms1_host=192.168.1.134 lms2_host=192.168.1.135 '  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh loadbalance.yml -i inventory.ini --limit lmsloadbalancer -e@server_vars.yml -e 'appname=lms  lms1_host=192.168.1.134 lms2_host=192.168.1.135 '  -u edx -k -K </pre>
 
-'''14. Nginx Load Balancer for CMS'''
+######14. Nginx Load Balancer for CMS
 
-sudo ansible-playbook -c ssh loadbalance.yml -i inventory.ini --limit cmsloadbalancer -e@server_vars.yml -e 'appname=cms  cms1_host=192.168.1.136 cms2_host=192.168.1.137 '  -u edx -k -K
+<pre>sudo ansible-playbook -c ssh loadbalance.yml -i inventory.ini --limit cmsloadbalancer -e@server_vars.yml -e 'appname=cms  cms1_host=192.168.1.136 cms2_host=192.168.1.137 '  -u edx -k -K</pre>
 
 
 
